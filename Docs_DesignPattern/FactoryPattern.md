@@ -8,153 +8,208 @@
 
 <br />
 
+## 2. Factory Pattern의 사용 이유
 
-http://codingcoding.tistory.com/324
-http://codepump.tistory.com/26
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- 객체를 생성할 때 매번 new를 사용하여 생성하지않고, 유연하게 사용 가능
 
 <br />
-## 4. 장/단점
+
+## 3. 장/단점
 
 #### [장점]
 - 객체를 생성하기 위한 별도의 객체 생성 클래스가 불필요
 - 객체 생성을 캡슐화할 수 있다.
 
 #### [단점]
-- 생성될 객체들의 클래스들이 모두 Clone() 메소드를 구현해야한다.
-
-
-
-
-
--------------------------------------------------------------------
-
-
-## 3. Prototype 의 사용 이유
-
-- 종류가 너무 많아서 각 클래스로 정리할 수 없는 경우
-
-
+- 생성될 객체들의 클래스들이 모두 생성하는 메소드 Create()를 구현해야한다.
 
 <br />
-## 5. 코드 설명
 
-- 비슷한 속성을 가진 객체를 매번 각 클래스에서 처리하기에는 코드가 중복되는 문제점도 있고, 효율성이 떨어짐.
+## 4. 코드 설명
+
 - 객체를 생성하기 위한 추상화 클래스(Enemy)를 정의해놓고, 이를 상속받은 서브 클래스(Slime, Boss)에서 각자 처리한다,
 
 
 
 
 
-#### [IEmployee.cs]
+### [Enemy.cs] 
+
+- **객체를 생성**하기 위한 Abstract 클래스 (공통 속성을 정의)
 
 ~~~~
- public interface IEmployee
+ namespace FactoryMethodPattern
+{
+    public enum EnemyType
     {
-        IEmployee Clone();
-        string GetDetailInfo();
+        Slime,
+        Boss,
     }
+
+    public abstract class Enemy
+    {
+        protected string name;
+
+        protected EnemyType type;
+
+        protected int hp;
+        protected int exp;
+
+        protected void Attack()
+        {
+            Debug.Log("공격한다.");
+        }
+
+        protected string GetLog()
+        {
+            return string.Format("{0} 등장 !! ", name);
+        }
+    }
+}
 ~~~~
 <br />
 
-#### [Developer.cs]
+### [Boss.cs] 
+
+- Enemy를 상속받아 보스 몬스터의 **생성 부분**을 구현한다.
 
 ~~~~
-    public class Developer : IEmployee
+namespace FactoryMethodPattern
+{
+    public class Boss : Enemy
     {
-        public string Name { get; set; }
-        public string Role { get; set; }
-        public string langauge { get; set; }
-
-        public IEmployee Clone()
+        public Boss()
         {
-            return (IEmployee)MemberwiseClone();
-        }
+            type = EnemyType.Boss;
 
-        public string GetDetailInfo()
-        {
-            return string.Format("Name : {0}, Role : {1}, langauge : {2}", Name, Role, langauge);
+            name = "보스 몬스터";
+            hp = 1000;
+            exp = 85;
+
+            Debug.Log(GetLog());
         }
     }
+}
 ~~~~
 <br />
 
-#### [Designer.cs]
+### [Slime.cs]
+
+- Enemy를 상속받아 슬라임의 **생성 부분**을 구현한다.
 
 ~~~~
-    public class Designer : IEmployee
+   namespace FactoryMethodPattern
+{
+    public class Slime : Enemy
     {
-        public string Name { get; set; }
-        public string Role { get; set; }
-        public string Tool { get; set; }
-
-        public IEmployee Clone()
+        public Slime()
         {
-            return (IEmployee)MemberwiseClone();
-        }
+            type = EnemyType.Slime;
 
-        public string GetDetailInfo()
-        {
-            return string.Format("Name : {0}, Role : {1}, Tool : {2}", Name, Role, Tool);
+            name = "슬라임";
+            hp = 200;
+            exp = 15;
+
+            Debug.Log(GetLog());
         }
     }
+}
+
 ~~~~
 <br />
 
-#### [MainProgram.cs]
+### [EnemyGenerator.cs]
+
+- 객체를 생성하기위한 Abstract 클래스
 
 ~~~~
+   
+namespace FactoryMethodPattern
+{
+    public abstract class EnemyGenerator
+    {
+        protected List<Enemy> enemyList = new List<Enemy>();
+
+        // Factory Method.
+        public abstract void CreateEnemys();
+    }
+}
+~~~~
+
+<br />
+
+### [EasyMapGenerator.cs]
+
+- Generator를 상속받아 객체를 생성하는 서브 클래스, 원하는 필요한 객체를 생성한다.
+
+~~~~
+
+namespace FactoryMethodPattern
+{
+    public class EasyMapGenerator : EnemyGenerator
+    {
+        public override void CreateEnemys()
+        {
+            enemyList.Add(new Slime());
+            enemyList.Add(new Slime());
+            enemyList.Add(new Slime());
+            enemyList.Add(new Boss());
+        }
+    }
+}
+
+~~~~
+
+<br />
+
+### [HardMapGenerator.cs]
+
+~~~~
+
+namespace FactoryMethodPattern
+{
+    public class HardMapGenerator : EnemyGenerator
+    {
+        public override void CreateEnemys()
+        {
+            enemyList.Add(new Boss());
+            enemyList.Add(new Boss());
+            enemyList.Add(new Boss());
+            enemyList.Add(new Slime());
+        }
+    }
+}
+
+~~~~~
+
+<br />
+
+### [MainProgram.cs]
+
+~~~~
+
+namespace FactoryMethodPattern
+{
     public class MainProgram : MonoBehaviour
     {
         void Start()
         {
-            Developer dev = new Developer();
-            dev.Name = "Sam";
-            dev.Role = "Team Leader";
-            dev.langauge = "C++";
+            Debug.Log("---------- Easy Map 몬스터 생성 ----------");
+            EnemyGenerator easyGenerator = new EasyMapGenerator();
+            easyGenerator.CreateEnemys();
 
-            Developer copyDev = dev.Clone() as Developer;
-            copyDev.Name = "Jenny";
-            copyDev.Role = "Programmer";
-
-            Debug.Log(dev.GetDetailInfo());
-            Debug.Log(copyDev.GetDetailInfo());
-
-            Designer designer = new Designer();
-            designer.Name = "Tom";
-            designer.Role = "Designer ";
-            designer.Tool = "PhotoShop";
-
-            Designer copyDesigner = designer.Clone() as Designer;
-            copyDesigner.Tool = "Grace";
-            copyDesigner.Tool = "illust";
-
-            Debug.Log(designer.GetDetailInfo());
-            Debug.Log(copyDesigner.GetDetailInfo());
+            Debug.Log("---------- Hard Map 몬스터 생성 ----------");
+            EnemyGenerator hardGenerator = new HardMapGenerator();
+            hardGenerator.CreateEnemys();
         }
     }
-~~~~
+}
+
+~~~~~
 
 <br />
 
-#### [실행 결과]
+### [실행 결과]
 
 	---------- Easy Map 몬스터 생성 ----------
 	슬라임 등장 !! 
@@ -171,7 +226,7 @@ http://codepump.tistory.com/26
 
 <br />
 
-## 6. 참고 사이트
+## 5. 참고 사이트
 - <http://codepump.tistory.com/26>
 
 
