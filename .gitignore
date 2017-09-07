@@ -34,3 +34,4 @@ sysinfo.txt
 *.unitypackage
 Unity_Pattern/Library/
 Unity_Pattern/.vs/Study_Pattern/v15/sqlite3/storage.ide
+Unity_Pattern/Temp/
