@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace BridgePatter.ex2
+namespace BridgePattern.ex2
 {
     public interface DrawingAPI
     {

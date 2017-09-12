@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace BridgePatter.ex2
+namespace BridgePattern.ex2
 {
     public class MainProgram : MonoBehaviour
     {

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace BridgePatter.ex1
+namespace BridgePattern.ex1
 {
     public abstract class Implementor {
 

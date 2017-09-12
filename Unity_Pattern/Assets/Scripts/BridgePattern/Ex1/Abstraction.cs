@@ -1,5 +1,5 @@
 ﻿
-namespace BridgePatter.ex1
+namespace BridgePattern.ex1
 {
     public  class Abstraction
     {
