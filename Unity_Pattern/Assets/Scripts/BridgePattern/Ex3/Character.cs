@@ -6,6 +6,7 @@ namespace BridgePattern.ex3
 {
     public abstract class Character 
     {
+        //실제 Bridge 역할?
         protected IWeapon weapon;
 
         // 캐릭터는 무기를 사용하는 것이기 때문에 
@@ -16,47 +17,5 @@ namespace BridgePattern.ex3
         }
 
         public abstract void Attack();
-    }
-
-    public class Soldier : Character
-    {
-        public Soldier(IWeapon weapon) : base(weapon)
-        {
-            this.weapon = weapon;
-            Debug.Log("***총 쏘는 캐릭터 ***");
-        }
-
-        public override void Attack()
-        {
-            weapon.Use();
-        }
-    }
-
-    public class Jiggs : Character
-    {
-        public Jiggs(IWeapon weapon) : base(weapon)
-        {
-            this.weapon = weapon;
-            Debug.Log("*** 폭탄 던지는 캐릭터 ***");
-        }
-
-        public override void Attack()
-        {
-            weapon.Use();
-        }
-    }
-
-    public class Lux : Character
-    {
-        public Lux(IWeapon weapon) : base(weapon)
-        {
-            this.weapon = weapon;
-            Debug.Log("*** 마력을 부리는 캐릭터 ***");
-        }
-
-        public override void Attack()
-        {
-            weapon.Use();
-        }
     }
 }

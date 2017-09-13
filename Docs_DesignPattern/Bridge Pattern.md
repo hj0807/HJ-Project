@@ -15,6 +15,8 @@
 
 
 
+
+
 ## 3. 장/단점
 
 ### [장점]
@@ -26,13 +28,15 @@
 
 
 
+
+
 ## 4. 코드 설명
-- 무기의 종류는 총, 폭탄, 마력이 있고,
-- 캐릭터 종류에는 솔져, 직스, 럭스 가 있다.
+- 무기의 종류는 총, 폭탄이 있고,
+- 캐릭터 종류에는 솔져, 직스가 있다.
 
 ### [IWeapon.cs]
 
-- 구체적인 기능을 구현하는 역할을 담당.
+- Bridge 구현 인터페이스 (구체적인 기능 구현)
 
 ```c#
 	public interface IWeapon
@@ -42,6 +46,8 @@
 ```
 
 ### [Bomb.cs]
+
+- IWeapon 인터페이스를 구현하는 구체적인 클래스, 구체적 Bridge 클래스
 
 ```c#
     public class Bomb : IWeapon
@@ -65,25 +71,16 @@
     }
 ```
 
-### [Spell.cs]
-
-```c#
-    public class Spell : IWeapon
-    {
-        public void Use()
-        {
-            Debug.Log("마법을 건다");
-        }
-    }
-```
-
 -----
 
 ### [Character.cs]
 
+- Iweapon 인터페이스를 사용하여 추상 클래스 Character를 만든다.
+
 ```c#
 	public abstract class Character 
     {
+        //실제 Bridge 역할?
         protected IWeapon weapon;
 
         // 캐릭터는 무기를 사용하는 것이기 때문에 
@@ -133,26 +130,11 @@
     }
 ```
 
-### [Lux.cs]
-
-```c#
-    public class Lux : Character
-    {
-        public Lux(IWeapon weapon) : base(weapon)
-        {
-            this.weapon = weapon;
-            Debug.Log("*** 마력을 부리는 캐릭터 ***");
-        }
-
-        public override void Attack()
-        {
-            weapon.Use();
-        }
-    }
-```
----
+----
 
 ### [MainProgram.cs]
+
+- 다른 종류의 캐릭터, 무기를 설정하기 위해 Character와 IWeapon을 사용한다.
 
 ```c#
     public class MainProgram : MonoBehaviour
@@ -161,16 +143,12 @@
         {
             IWeapon gun = new Gun();
             IWeapon bomb = new Bomb();
-            IWeapon spell = new Spell();
 
-            Character cha = new Soldier(gun);
-            cha.Attack();
+            Character soldier = new Soldier(gun);
+            soldier.Attack();
 
             Character jiggs = new Jiggs(bomb);
             jiggs.Attack();
-
-            Character lux = new Lux(spell);
-            lux.Attack();
         }
     }
 ```
@@ -181,5 +159,3 @@
 	총을 쏜다
 	*** 폭탄 던지는 캐릭터 ***
 	폭탄을 던진다
-	*** 마력을 부리는 캐릭터 ***
-	마법을 건다

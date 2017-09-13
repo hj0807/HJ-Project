@@ -4,8 +4,11 @@ using UnityEngine;
 
 namespace BridgePattern.ex3
 {
-    public interface IWeapon
+    public class Gun : IWeapon
     {
-        void Use();
+        public void Use()
+        {
+            Debug.Log("총을 쏜다");
+        }
     }
 }

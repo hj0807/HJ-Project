@@ -10,16 +10,12 @@ namespace BridgePattern.ex3
         {
             IWeapon gun = new Gun();
             IWeapon bomb = new Bomb();
-            IWeapon spell = new Spell();
 
-            Character cha = new Soldier(gun);
-            cha.Attack();
+            Character soldier = new Soldier(gun);
+            soldier.Attack();
 
             Character jiggs = new Jiggs(bomb);
             jiggs.Attack();
-
-            Character lux = new Lux(spell);
-            lux.Attack();
         }
     }
 }

@@ -26,8 +26,10 @@ namespace PrototypePattern
             designer.Tool = "PhotoShop";
 
             Designer copyDesigner = designer.Clone() as Designer;
-            copyDesigner.Tool = "Grace";
+            copyDesigner.Name = "Grace";
             copyDesigner.Tool = "illust";
+
+            designer.Tool = "PhotoShop";
 
             Debug.Log(designer.GetDetailInfo());
             Debug.Log(copyDesigner.GetDetailInfo());

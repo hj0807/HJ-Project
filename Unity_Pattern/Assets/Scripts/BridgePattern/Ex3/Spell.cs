@@ -4,8 +4,11 @@ using UnityEngine;
 
 namespace BridgePattern.ex3
 {
-    public interface IWeapon
+    public class Spell : IWeapon
     {
-        void Use();
+        public void Use()
+        {
+            Debug.Log("마법을 건다");
+        }
     }
 }
