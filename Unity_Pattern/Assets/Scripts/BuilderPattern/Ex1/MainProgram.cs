@@ -6,12 +6,12 @@ namespace BuilderPattern.ex1
     {
         private void Start()
         {
-            Waiter waiter = new Waiter();
-            waiter.SetPizzaBuilder(new HawaiianPizzaBuilder());
-            waiter.ConstructPizza();
+            Director director = new Director();
+            director.SetPizzaBuilder(new HawaiianPizzaBuilder());
+            director.ConstructPizza();
 
-            waiter.SetPizzaBuilder(new SpicyPizzaBuilder());
-            waiter.ConstructPizza();
+            director.SetPizzaBuilder(new SpicyPizzaBuilder());
+            director.ConstructPizza();
         }
     }
 }

@@ -2,7 +2,8 @@
 namespace BuilderPattern.ex1
 {
     /// <summary>
-    /// 빌더의 구현 클래스.
+    /// 빌더의 구현 클래스. 
+    /// 객체를 생성할 수 있도록 하는 클래스.(객체를 만들기 위해 부품을 조립)
     /// </summary>
     public class HawaiianPizzaBuilder : PizzaBuilder
     {
