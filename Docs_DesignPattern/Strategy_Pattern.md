@@ -209,3 +209,20 @@
 	이름 : yoon jungsoo, 나이 : 40, 키 : 163
 	이름 : suzy, 나이 : 26, 키 : 170
 	이름 : kang dongwon, 나이 : 35, 키 : 190
+
+---
+
+
+
+## 5. Strategy와 Bridge 패턴의 차이
+
+- Strategy 패턴 : 같은 결과이지만 다른 알고리즘으로 수행할 때 사용  
+  - ex. 정렬 방법을 선택할때 (퀵, 버블, 선택 등...)
+- Bridge 패턴 : 하나의 동작을 추상화하여 서로 다른 구조를 수행할 때 사용
+  - ex. 무기를 사용함을 추상화로 정의해놓고, 각 클래스별 세부 구현.
+
+
+
+<참고>
+
+http://devnote2.tistory.com/entry/Strategy-pattern-VS-Brigde-Pattern
