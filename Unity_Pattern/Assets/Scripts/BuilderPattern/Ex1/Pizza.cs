@@ -2,7 +2,7 @@
 namespace BuilderPattern.ex1
 {
     /// <summary>
-    /// Builder를 이용해서 Director가 만들어낸 객체.
+    /// 객체 (Product)에 대한 정의.
     /// </summary>
     public class Pizza
     {
