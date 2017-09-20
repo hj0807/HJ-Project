@@ -1,38 +1,39 @@
-# Decorator Pattern 
+# Composite Pattern 
 
 
 
-## 1. Decorator Pattern 
-- 객체에 `추가적인 요소를 동적`으로 첨가할 수 있다.
+## 1. Composite Pattern 
+- 객체들의 관계를 `트리 구조`로 구성하여 표현 (부분 - 계층)
+- 사용자는 단일 객체, 복합 객체 모두 `동일하게 처리`한다.
 
-- 유연한 확장을 위해 상속 대신 사용할 수 있다.
 
-  ​
 
 
 
 ## 2. UML Diagram
-![uml](https://www.codeproject.com/KB/architecture/479635/GoFClassDiagram.jpg)
+![uml](https://www.codeproject.com/KB/architecture/1197606/compositeGof.gif)
 
 
 
 ## 3. 장/단점
 
 ### [장점]
-- 클래스에 새로운 기능을 추가할 때 기존 소스변경 없이 클래스만 추가 가능
+- 단일 / 복합 객체에 대해 일관성있게 코드 작성이 가능하다.
+- 새로운 요소를 쉽게 추가할 수 있다.
 
 
 ### [단점]
 
-- 잡다한 클래스들이 많아질 수 있다.
-- 구조 파악이 복잡해질 수 있다 (클래스를 겹겹이 쌓는 구조이기 때문에)
+- 복합체에 구성요소의 제약을 가하기 힘들다.
+
   ​
 
 ## 4. 코드 설명
 
-- 기본적인 음료(Espresson, HouseBlend, DarkLost, Decaf)에 동적으로 
+- 간단한 파일 시스템을 예시로 든다.
+- Directory 안에 다른 Directory 혹은 File이 있을 수 있다. (Leaf-File, Composite-Directory)
 
-  첨가물(Soy, Mocha, Whip, Steam Milk)을 설정하는 코드
+
 
 ### [Beverage.cs]
 
