@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TestMain : MonoBehaviour {
+namespace SingletonPattern
+{
+    public class TestMain : MonoBehaviour
+    {
+        void Start()
+        {
+            OperatorMgr.Instance.AddValue(30);
+            OperatorMgr.Instance.AddValue(50);
 
-	void Start () {
-        OperatorMgr.Instance.AddValue(30);
-        OperatorMgr.Instance.AddValue(50);
-
-        OperatorMgr.Instance.Print();
+            OperatorMgr.Instance.Print();
+        }
     }
 }
