@@ -24,6 +24,8 @@
 
 ### [단점]
 
+- 시스템을 지나치게 일반화한다.
+
 - 복합체에 구성요소의 제약을 가하기 힘들다.
 
   ​
@@ -35,221 +37,179 @@
 
 
 
-### [Beverage.cs]
+### [Entry.cs]
 
 ~~~~c#
     /// <summary>
-    /// Component 추상 클래스
+    /// Component 역할
+    /// Composite(복합 객체)를 위한 추상화 클래스
     /// </summary>
-    public abstract class Beverage
+    public abstract class Entry
     {
-        protected string description = "설명 없음";
+        //공통적으로 파일 or 디렉토리의 이름,사이즈.
+        public abstract string GetName();
+        public abstract int GetSize();
 
-        public virtual string GetDescription() {
-            return description;
+        /// <summary>
+        /// 복합 개체(Directory)에서만 필요한 메서드.
+        /// </summary>
+        /// <param name="entry"></param>
+        public virtual void Add(Entry entry)
+        {
         }
 
-        public abstract float Cost();
-    }
-~~~~
-
-
-### [Espresso.cs]
-
-~~~~c#
-    /// <summary>
-    /// ConcreteComponent 역할
-    /// Component를 상속받아 구체적인 구현을 한다.
-    /// </summary>
-    public class Espresso : Beverage
-    {
-        //생성자부분에서 description을 설정.
-        public Espresso() {
-            description = "에스프레소";
+        //공통으로 사용되는 출력 method.
+        public void Print()
+        {
+            PrintList("");
         }
 
-        //각 클래스의 기능에 맞는 가격을 설정하여 반환.
-        public override float Cost() {
-            return 1.99f;
+        public abstract void PrintList(string prefix);
+
+        public string ToString()
+        {
+            return string.Format("{0} ({1})", GetName(), GetSize());
         }
     }
 ~~~~
 
 
-### [HouseBlend.cs]
+### [File.cs]
 
 ~~~~c#
-    public class HouseBlend : Beverage
+    /// <summary>
+    /// Leaf 역할 (단일 객체)
+    /// Entry(Component)를 구현하는 클래스.
+    /// </summary>
+    public class File : Entry
     {
-        public HouseBlend() {
-            description = "하우스 블렌드";
+        private string name;
+        private int size;
+
+        public File(string name, int size)
+        {
+            this.name = name;
+            this.size = size;
         }
 
-        public override float Cost() {
-            return .89f;
+        public override string GetName()
+        {
+            return name;
+        }
+
+        public override int GetSize()
+        {
+            return size;
+        }
+
+        public override void PrintList(string prefix)
+        {
+            Debug.Log(prefix + "/" + this.name);
         }
     }
 ~~~~
 
 
-### [DarkRoast.cs]
+### [Directory.cs]
 
-```c#
-    public class DarkRoast : Beverage
-    {
-        public DarkRoast() {
-            description = "다크 로스트";
-        }
-
-        public override float Cost() {
-            return .99f;
-        }
-    }
-```
-
----
-
-### [CondimentDecorator.cs]
-
-```c#
+~~~~c#
     /// <summary>
-    /// 첨가물에 들어가는 Decorator 클래스들의 추상클래스
+    /// Composite 역할
+    /// Entry(Component)를 저장, Component를 관리하기위한 메소드를 가지고있다.
     /// </summary>
-    public abstract class CondimentDecorator : Beverage
+    public class Directory : Entry
     {
-        //Beverage의 GetDescription()을 override.
-        public abstract override string GetDescription();
-    }
-```
+        private string name;
+        private List<Entry> entryList = new List<Entry>();
 
-
-
-### [Mocha.cs]
-
-```c#
-    /// <summary>
-    /// ConcreteDecorator - 구체적인 Decorator
-    /// </summary>
-    public class Mocha : CondimentDecorator
-    {
-        //자신이 장식할 대상을 알아야하기때문에 Beverage를 가지고 있음.
-        Beverage beverage;
-
-        public Mocha(Beverage beverage) {
-            this.beverage = beverage;
+        public Directory(string name)
+        {
+            this.name = name;
         }
 
-        public override string GetDescription() {
-            return beverage.GetDescription() + ", 모카";
+        public override string GetName()
+        {
+            return name;
         }
 
-        public override float Cost() {
-            return (beverage.Cost() + 0.20f);
-        }
-    }
-```
+        //단일 객체들의 크기를 더하여 사이즈를 계산.
+        public override int GetSize()
+        {
+            int totalSize = 0;
 
+            for (int i = 0; i < entryList.Count; i++)
+            {
+                totalSize += entryList[i].GetSize();
+            }
 
-
-### [Soy.cs]
-
-```c#
-    public class Soy : CondimentDecorator
-    {
-        Beverage beverage;
-
-        public Soy(Beverage beverage) {
-            this.beverage = beverage;
+            return totalSize;
         }
 
-        public override string GetDescription() {
-            return beverage.GetDescription() + ", 두유";
+        public override void Add(Entry entry)
+        {
+            entryList.Add(entry);
         }
 
-        public override float Cost() {
-            return (beverage.Cost() + 0.15f);
+        public override void PrintList(string prefix)
+        {
+            Debug.Log(prefix + "/" + this.name);
+
+            for (int i = 0; i < entryList.Count; i++)
+            {
+                Entry entry = entryList[i];
+                entry.PrintList(prefix + "/" + name);
+            }
         }
     }
-```
-
-
-
-### [Whip.cs]
-
-```c#
-    public class Whip : CondimentDecorator
-    {
-        Beverage beverage;
-
-        public Whip(Beverage beverage) {
-            this.beverage = beverage;
-        }
-
-        public override string GetDescription() {
-            return beverage.GetDescription() + ", 휘핑크림";
-        }
-
-        public override float Cost() {
-            return (beverage.Cost() + 0.10f);
-        }
-    }
-```
-
-
-
-### [SteamMilk.cs]
-
-```c#
-    public class SteamMilk : CondimentDecorator
-    {
-        Beverage beverage;
-
-        public SteamMilk(Beverage beverage) {
-            this.beverage = beverage;
-        }
-
-        public override string GetDescription() {
-            return beverage.GetDescription() + ", 스팀 밀크";
-        }
-
-        public override float Cost() {
-            return (beverage.Cost() + 0.10f);
-        }
-    }
-```
+~~~~
 
 
 
 ---
 
-### [StarbuzzCoffee.cs]
+### [MainProgram.cs]
+
+- 최상위의 Root 디렉토리를 생성
+  - Root 디렉토리 내에 bin, temp, user 디렉토리를 생성
+    - bin 디렉토리 내에 폴더를 만들고, 각 폴더 안에 파일을 만드는 트리구조를 표현.
 
 ~~~~c#
-    public class StarbuzzCoffee : MonoBehaviour
+    public class MainProgram : MonoBehaviour
     {
         void Start()
         {
-            // 첨가를 하지 않음.
-            Beverage beverage = new Espresso();
+            Directory rootDir = new Directory("root");
 
-            Debug.Log(beverage.GetDescription() + " - $" + beverage.Cost());
+            Directory binDir = new Directory("bin");
+            Directory tempDir = new Directory("temp");
+            Directory userDir = new Directory("user");
 
-            // 기본 음료에 더블모카, 휘핑크림을 첨가.
-            Beverage beverage2 = new DarkRoast();
-            beverage2 = new Mocha(beverage2);
-            beverage2 = new Mocha(beverage2);
-            beverage2 = new Whip(beverage2);
+            rootDir.Add(binDir);
+            rootDir.Add(tempDir);
+            rootDir.Add(userDir);
 
-            Debug.Log(beverage2.GetDescription() + " - $" + beverage2.Cost());
+            binDir.Add(new File("bin_file_1", 100));
+            binDir.Add(new File("bil_file_2", 200));
 
-            // 기본 음료에 두유, 모카, 휘핑크림을 첨가.
-            Beverage beverage3 = new HouseBlend();
-            beverage3 = new Soy(beverage3);
-            beverage3 = new Mocha(beverage3);
-            beverage3 = new Whip(beverage3);
+            Directory KimDir = new Directory("Kim");
+            Directory ChoiDir = new Directory("Choi");
+            Directory ShinDir = new Directory("Shin");
 
-            Debug.Log(beverage3.GetDescription() + " - $" + beverage3.Cost());
+            userDir.Add(KimDir);
+            userDir.Add(ChoiDir);
+            userDir.Add(ShinDir);
+
+            KimDir.Add(new File("data.xml", 50));
+            KimDir.Add(new File("composite.cs", 100));
+
+            ChoiDir.Add(new File("r&d.doc", 200));
+            ChoiDir.Add(new File("bae_platform.pptx", 150));
+
+            ShinDir.Add(new File("clip.mat", 400));
+
+            rootDir.Print();
         }
+    }
 ~~~~
 
 
@@ -257,6 +217,23 @@
 
 ### [실행 결과]
 
-	에스프레소 - $1.99
-	다크 로스트, 모카, 모카, 휘핑크림 - $1.49
-	하우스 블렌드, 두유, 모카, 휘핑크림 - $1.34
+	/root
+	/root/bin
+	/root/bin/bin_file_1
+	/root/bin/bil_file_2
+	/root/temp
+	/root/user
+	/root/user/Kim
+	/root/user/Kim/data.xml
+	/root/user/Kim/composite.cs
+	/root/user/Choi
+	/root/user/Choi/r&d.doc
+	/root/user/Choi/bae_platform.pptx
+	/root/user/Shin
+	/root/user/Shin/clip.mat
+
+
+
+## 5. 참고 사이트
+
+- http://jellyms.kr/596
