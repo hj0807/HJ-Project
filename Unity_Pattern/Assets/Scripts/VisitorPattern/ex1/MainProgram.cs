@@ -9,6 +9,10 @@ using UnityEngine;
 
 namespace VisitorPattern.ex1
 {
+    /// <summary>
+    /// Visitor Pattern.
+    /// 2개의 interface가 필요 (IElemnt, Ivisitor)
+    /// </summary>
     public class MainProgram : MonoBehaviour
     {
         void Start()

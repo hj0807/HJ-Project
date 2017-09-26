@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace VisitorPattern.ex1
 {
+    /// <summary>
+    /// Visitor 구현부 (알고리즘2)
+    /// </summary>
     public class CarElementDoVisitor : ICarElementVisitor
     {
         public void visit(Engine engine)

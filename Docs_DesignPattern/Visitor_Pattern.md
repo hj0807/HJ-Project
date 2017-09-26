@@ -4,7 +4,10 @@
 
 ## 1. Visitor Pattern 
 - 객체의 **`구조와 기능을 분리`**
-- ​구조는 그대로 두고, 알고리즘 객체만 추가 (확장성)
+
+- 구조는 그대로 두고, 알고리즘 객체만 추가 (확장성)
+
+- 복잡한 구조체 클래스를 정의해놓고, 이 구조체를 사용하고자 할때!!!!!  **Visitor** 가 구조체 내부를 돌아다니면서 특정 작업을 하는 경우에 사용한다.
 
   ​
 
@@ -20,128 +23,210 @@
 ### [장점]
 
 
-- ​
-- 새로운 알고리즘을 추가하기가 쉽다. (확장성 있음)
-- 수정작업이 필요할경우 클라이언트와는 독립적으로 해당 알고리즘만 수정하면 된다.
+- (클라이언트 입장에서) 알고리즘 구현방식을 기존 코드 변경없이 바꿀 수 있다.
 
 
+
+
+### [단점]
+
+- 데이터를 추가 확장하는게 힘들다
+  - Visitor 인터페이스 및 클래스에 새 데이터 객체에 대한 visit 메서드를 추가해줘야하기 때문에
+  - 따라서, 데이터의 변경이 적고 알고리즘이 주로 변경되는 부분에서 사용하는 것이 적절.
 
 
 ## 4. 코드 설명
 
-### [Person.cs]
+- 각 컴퓨터 부품(Monitor, Mouse, Keyboard)을 정의하고, 이 부품들을 사용하는 Computer 클래스를 정의
+- Computer 클래스에서는 각 부품들을 인터페이스로 관리하여, 인터페이스에 정의된 Accept(Visitor) 메서드를 호출
+- 각 Visitor 클래스에서 객체들을 전달받아 객체들에 대한 세부 작업을 구현하는 구현 클래스 역할을 함.
 
-- Custom Data 클래스
+
+
+### [IComputerPart.cs]
 
 ~~~~c#
-    public class Person
+    /// <summary>
+    /// Element 인터페이스 역할 (데이터의 인터페이스)
+    /// 
+    /// 각 객체는 Visitor 객체가 세부 작업을 처리할 수 있도록 
+    /// Visitor 인터페이스를 받아야한다.
+    /// </summary>
+    public interface IComputerPart
     {
-        public string name;
-        public int age;
-        public int tall;
+        void Accept(IComputerPartVisitor visitor);
+    }
+~~~~
 
-        public Person(string name, int age, int tall)
+
+### [Monitor.cs]
+
+~~~~c#
+    /// <summary>
+    /// Concrete Element 역할 
+    /// IComputerPart의 구현 클래스
+    /// </summary>
+    public class Monitor : IComputerPart
+    {
+        // Visitor에 자기 자신을 전달 (Visitor가 해당 객체의 세부작업을 처리할 수 있도록)
+        public void Accept(IComputerPartVisitor visitor)
         {
-            this.name = name;
-            this.age = age;
-            this.tall = tall;
+            visitor.Visit(this);
         }
     }
 ~~~~
 
 
-### [SortStrategy.cs]
+### [Keyboard.cs]
 
 ~~~~c#
     /// <summary>
-    /// Strategy 추상화 클래스 (알고리즘의 추상 객체)
+    /// Concrete Element 역할 
+    /// IComputerPart의 구현 클래스
     /// </summary>
-    public abstract class SortStrategy
+    public class Keyboard : IComputerPart
     {
-        //공통 알고리즘 메서드를 정의만 해놓는다.
-        public abstract void Sort(List<Person> list);
-    }
-~~~~
-
-
-### [SortByAge.cs]
-
-~~~~c#
-    /// <summary>
-    /// ConcreteStrage 클래스, 각각 알고리즘을 구현한다.
-    /// </summary>
-    public class SortByAge : SortStrategy
-    {
-        public override void Sort(List<Person> list)
+        public void Accept(IComputerPartVisitor visitor)
         {
-            Debug.Log("===== 나이순으로 정렬 =====");
-
-            list.Sort((x, y) => x.age.CompareTo(y.age));
+            visitor.Visit(this);
         }
     }
 ~~~~
 
 
-### [SortByName.cs]
+### [Mouse.cs]
 
 ```c#
-    public class SortByName : SortStrategy
+    /// <summary>
+    /// Concrete Element 역할 
+    /// IComputerPart의 구현 클래스
+    /// </summary>
+    public class Mouse : IComputerPart
     {
-        public override void Sort(List<Person> list)
+        public void Accept(IComputerPartVisitor visitor)
         {
-            Debug.Log("===== 이름순으로 정렬 =====");
-
-            list.Sort((x, y) => x.name.CompareTo(y.name));
+            visitor.Visit(this);
         }
     }
 ```
 
 
 
-### [SortByTall.cs]
-
-```c#
-     public class SortByTall : SortStrategy
-    {
-        public override void Sort(List<Person> list)
-        {
-            Debug.Log("===== 키순으로 정렬 =====");
-
-            list.Sort((x, y) => x.tall.CompareTo(y.tall));
-        }
-    }
-```
-
-
-
-### [SortedList.cs]
+### [Computer.cs]
 
 ```c#
     /// <summary>
-    /// Context 클래스
-    /// Strategy의 구상객체를 소유, 해당 객체의 메소드를 실행시킨다.
+    /// Concrete Element 역할
+    /// IComputerPart의 구현 클래스
+    /// 
+    /// 복잡한 구조체 (부품들을 가지고 있음) - Composite 패턴과 유사.
+    /// 이 구조체를 사용하고 싶을 때 Visitor를 통해서 내부 로직에 접근한다.
     /// </summary>
-    public class SortedList
+    public class Computer : IComputerPart
     {
-        private SortStrategy strategy;
+        private IComputerPart[] parts;
 
-        public SortedList(SortStrategy strategy)
+        // 부품을 생성한다.
+        public Computer()
         {
-            this.strategy = strategy;
+            parts = new IComputerPart[] { new Monitor(), new Keyboard(), new Mouse() };
         }
 
-        public void Sort(List<Person> list)
+        public void Accept(IComputerPartVisitor visitor)
         {
-            strategy.Sort(list); 
-        }
-
-        public void PrintInfo(List<Person> list)
-        {
-            for(int i=0; i<list.Count; i++)
-            {
-                Debug.Log(string.Format("이름 : {0}, 나이 : {1}, 키 : {2}", 
-                                        list[i].name, list[i].age, list[i].tall));
+            for(int i=0; i<parts.Length; i++) {
+                parts[i].Accept(visitor);
             }
+            visitor.Visit(this);
+        }
+    }
+```
+
+
+
+### [IComputerPartVisitor.cs]
+
+```c#
+    /// <summary>
+    /// Visitor 인터페이스
+    /// 객체들을 자신을 던져주는 Visit 메소드를 정의 
+    /// (객체추가시 메소드도 추가되야된다)
+    /// 
+    /// 모든 객체들은 방문자를 통해 세부 구현을 해야하니까, 각 객체들의 방문자들을 총집합시키는 인터페이스?
+    /// </summary>
+    public interface IComputerPartVisitor
+    {
+        void Visit(Monitor monitor);
+        void Visit(Keyboard keyboard);
+        void Visit(Mouse mouse);
+        void Visit(Computer computer);
+    }
+```
+
+### [ComputerPartDisplayVisitor.cs]
+
+```c#
+    /// <summary>
+    /// Concrete Visitor 역할
+    /// Visitor 인터페이스를 구현
+    /// 
+    /// 각 객체들을 전달받아 클래스에서 세부 작업을 처리한다.
+    /// 컴퓨터 부품들의 상태를 확인하는 클래스.
+    /// </summary>
+    public class ComputerPartDisplayVisitor : IComputerPartVisitor
+    {
+        public void Visit(Monitor monitor)
+        {
+            Debug.Log("모니터 상태를 보여준다.");
+        }
+
+        public void Visit(Keyboard keyboard)
+        {
+            Debug.Log("키보드 상태를  보여준다.");
+        }
+
+        public void Visit(Mouse mouse)
+        {
+            Debug.Log("마우스 상태를 보여준다.");
+        }
+
+        public void Visit(Computer computer)
+        {
+            Debug.Log("컴퓨터 상태를 보여준다.");
+        }
+    }
+```
+
+### [ComputerPartExecuteVisitor.cs]
+
+```c#
+    /// <summary>
+    /// Concrete Visitor 역할
+    /// Visitor 인터페이스를 구현
+    /// 
+    /// 각 객체들을 전달받아 클래스에서 세부 작업을 처리한다.
+    /// 컴퓨터 부품들을 실행시키는 클래스.
+    /// </summary>
+    public class ComputerPartExecuteVisitor : IComputerPartVisitor
+    {
+        public void Visit(Monitor monitor)
+        {
+            Debug.Log("모니터를 작동한다.");
+        }
+
+        public void Visit(Keyboard keyboard)
+        {
+            Debug.Log("키보드를 작동한다.");
+        }
+
+        public void Visit(Mouse mouse)
+        {
+            Debug.Log("마우스를 작동한다.");
+        }
+
+        public void Visit(Computer computer)
+        {
+            Debug.Log("컴퓨터를 작동한다");
         }
     }
 ```
@@ -155,79 +240,29 @@
     {
         void Start()
         {
-            //Person 정보 등록.
-            List<Person> personList = new List<Person>();
+            //복잡한 구조체를 정의해놓고,
+            IComputerPart computer = new Computer();
 
-            personList.Add(new Person("yoon jungsoo", 40, 155));
-            personList.Add(new Person("kang dongwon", 35, 190));
-            personList.Add(new Person("suzy", 26, 170));
+            //Visitor를 전달하여 세부 기능을 실행.
+            // Visitor 전달 -> Computer -> Visitor에 전달.
+            computer.Accept(new ComputerPartDisplayVisitor());
 
-            Debug.Log("===== 정렬 전 =====");
-
-            for (int i = 0; i < personList.Count; i++)
-            {
-                Debug.Log(string.Format("이름 : {0}, 나이 : {1}, 키 : {2}", 
-                    personList[i].name, personList[i].age, personList[i].tall));
-            }
-
-            //Age.
-            SortedList sortedList = new SortedList(new SortByAge());
-
-            sortedList.Sort(personList);
-            sortedList.PrintInfo(personList);
-
-            //Name.
-            sortedList = new SortedList(new SortByName());
-
-            sortedList.Sort(personList);
-            sortedList.PrintInfo(personList);
-
-            //Tall.
-            sortedList = new SortedList(new SortByTall());
-
-            sortedList.Sort(personList);
-            sortedList.PrintInfo(personList);
+            computer.Accept(new ComputerPartExecuteVisitor());
         }
+    }
 ~~~~
-
-
-
-
-### [실행 결과]
-
-	===== 정렬 전 =====
-	이름 : yoon jungsoo, 나이 : 40, 키 : 163
-	이름 : kang dongwon, 나이 : 35, 키 : 190
-	이름 : suzy, 나이 : 26, 키 : 170
-	
-	===== 나이순으로 정렬 =====
-	이름 : suzy, 나이 : 26, 키 : 170
-	이름 : kang dongwon, 나이 : 35, 키 : 190
-	이름 : yoon jungsoo, 나이 : 40, 키 : 163
-	
-	===== 이름순으로 정렬 =====
-	이름 : kang dongwon, 나이 : 35, 키 : 190
-	이름 : suzy, 나이 : 26, 키 : 170
-	이름 : yoon jungsoo, 나이 : 40, 키 : 163
-	
-	===== 키순으로 정렬 =====
-	이름 : yoon jungsoo, 나이 : 40, 키 : 163
-	이름 : suzy, 나이 : 26, 키 : 170
-	이름 : kang dongwon, 나이 : 35, 키 : 190
 
 ---
 
 
+### [실행 결과]
 
-## 5. Strategy와 Bridge 패턴의 차이
-
-- Strategy 패턴 : 같은 결과이지만 다른 알고리즘으로 수행할 때 사용  
-  - ex. 정렬 방법을 선택할때 (퀵, 버블, 선택 등...)
-- Bridge 패턴 : 하나의 동작을 추상화하여 서로 다른 구조를 수행할 때 사용
-  - ex. 무기를 사용함을 추상화로 정의해놓고, 각 클래스별 세부 구현.
-
-
-
-<참고>
-
-http://devnote2.tistory.com/entry/Strategy-pattern-VS-Brigde-Pattern
+	모니터 상태를 보여준다.
+	키보드 상태를  보여준다.
+	마우스 상태를 보여준다.
+	컴퓨터 상태를 보여준다.
+	
+	모니터를 작동한다.
+	키보드를 작동한다.
+	마우스를 작동한다.
+	컴퓨터를 작동한다.

@@ -7,6 +7,9 @@ namespace VisitorPattern.ex1
     {
         ICarElement[] elements;
 
+        /// <summary>
+        /// 부품을 생성 (바퀴4개).
+        /// </summary>
         public Car()
         {
             this.elements = new ICarElement[] { new Wheel("front left"),
