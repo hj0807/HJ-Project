@@ -42,201 +42,140 @@
 
 ## 4. 코드 설명
 
-- 각 컴퓨터 부품(Monitor, Mouse, Keyboard)을 정의하고, 이 부품들을 사용하는 Computer 클래스를 정의
-- Computer 클래스에서는 각 부품들을 인터페이스로 관리하여, 인터페이스에 정의된 Accept(Visitor) 메서드를 호출
-- 각 Visitor 클래스에서 객체들을 전달받아 객체들에 대한 세부 작업을 구현하는 구현 클래스 역할을 함.
+- 대출 시스템을 예로 샘플 코드를 작성
+- 희망 대출 금액에 따라서 승인을 허용해주는 담당자의 직급이 다르다.
+- 대출금액에 따라 대출 요청을 하면 (사원->팀장->점장) 연쇄적으로 요청이 진행된다.
 
 
 
-### [IComputerPart.cs]
+
+
+### [LoanRequest.cs]
 
 ~~~~c#
     /// <summary>
-    /// Element 인터페이스 역할 (데이터의 인터페이스)
-    /// 
-    /// 각 객체는 Visitor 객체가 세부 작업을 처리할 수 있도록 
-    /// Visitor 인터페이스를 받아야한다.
+    /// 대출 요청시 필요한 데이터 정의
     /// </summary>
-    public interface IComputerPart
+    public struct LoanRequest
     {
-        void Accept(IComputerPartVisitor visitor);
+        public string Customer { get; set; }
+        public int Amount { get; set; }
     }
 ~~~~
 
 
-### [Monitor.cs]
+
+### [RequestHandler.cs]
 
 ~~~~c#
     /// <summary>
-    /// Concrete Element 역할 
-    /// IComputerPart의 구현 클래스
+    /// Handler 추상화 클래스
     /// </summary>
-    public class Monitor : IComputerPart
+    public abstract class RequestHandler
     {
-        // Visitor에 자기 자신을 전달 (Visitor가 해당 객체의 세부작업을 처리할 수 있도록)
-        public void Accept(IComputerPartVisitor visitor)
+        protected RequestHandler successor { get; set; }
+
+        public string Name { get; set; }
+
+        /// <summary>
+        /// 다음 링크(객체)를 구현한다. (선택적 메소드)
+        /// </summary>
+        /// <param name="successor"></param>
+        public void SetSuccessor(RequestHandler successor)
         {
-            visitor.Visit(this);
+            this.successor = successor;
         }
+
+        /// <summary>
+        /// 각 클래스별 요청을 처리하는 세부 기능 구현
+        /// 조건에 해당하지 않으면 다음 객체에 요청을 전달하는 기능.
+        /// </summary>
+        /// <param name="request"></param>
+        public abstract void HandlerRequest(LoanRequest request);
     }
 ~~~~
 
 
-### [Keyboard.cs]
+
+### [Cashier.cs]
 
 ~~~~c#
     /// <summary>
-    /// Concrete Element 역할 
-    /// IComputerPart의 구현 클래스
+    /// Concrete Handler
     /// </summary>
-    public class Keyboard : IComputerPart
+    public class Cashier : RequestHandler
     {
-        public void Accept(IComputerPartVisitor visitor)
+        public override void HandlerRequest(LoanRequest request)
         {
-            visitor.Visit(this);
-        }
-    }
-~~~~
+            Debug.Log(string.Format("[대출 요청] 고객 이름:{0}, 금액:${1}", request.Customer, request.Amount));
 
-
-### [Mouse.cs]
-
-```c#
-    /// <summary>
-    /// Concrete Element 역할 
-    /// IComputerPart의 구현 클래스
-    /// </summary>
-    public class Mouse : IComputerPart
-    {
-        public void Accept(IComputerPartVisitor visitor)
-        {
-            visitor.Visit(this);
-        }
-    }
-```
-
-
-
-### [Computer.cs]
-
-```c#
-    /// <summary>
-    /// Concrete Element 역할
-    /// IComputerPart의 구현 클래스
-    /// 
-    /// 복잡한 구조체 (부품들을 가지고 있음) - Composite 패턴과 유사.
-    /// 이 구조체를 사용하고 싶을 때 Visitor를 통해서 내부 로직에 접근한다.
-    /// </summary>
-    public class Computer : IComputerPart
-    {
-        private IComputerPart[] parts;
-
-        // 부품을 생성한다.
-        public Computer()
-        {
-            parts = new IComputerPart[] { new Monitor(), new Keyboard(), new Mouse() };
-        }
-
-        public void Accept(IComputerPartVisitor visitor)
-        {
-            for(int i=0; i<parts.Length; i++) {
-                parts[i].Accept(visitor);
+            //조건에 만족하면 해당 클래스에서 아래 작업을 처리.
+            if (request.Amount < 1000)
+            {
+                Debug.Log(string.Format("[승인 완료] {0}에게 대출 완료 - 담당자 {1}", request.Customer, this.Name));
             }
-            visitor.Visit(this);
+            else if (successor != null) //만족하지 못하면 다음 객체에 요청사항을 전달.
+            {
+                Debug.Log(string.Format("[승인 거부] 담당자 변경 - {1}", request.Customer, this.Name));
+
+                successor.HandlerRequest(request);
+            }
         }
     }
-```
+~~~~
 
 
 
-### [IComputerPartVisitor.cs]
+### [TeamLeader.cs]
 
 ```c#
     /// <summary>
-    /// Visitor 인터페이스
-    /// 객체들을 자신을 던져주는 Visit 메소드를 정의 
-    /// (객체추가시 메소드도 추가되야된다)
-    /// 
-    /// 모든 객체들은 방문자를 통해 세부 구현을 해야하니까, 각 객체들의 방문자들을 총집합시키는 인터페이스?
+    /// Concrete Handler
     /// </summary>
-    public interface IComputerPartVisitor
+    public class TeamLeader : RequestHandler
     {
-        void Visit(Monitor monitor);
-        void Visit(Keyboard keyboard);
-        void Visit(Mouse mouse);
-        void Visit(Computer computer);
+        public override void HandlerRequest(LoanRequest request)
+        {
+            //조건에 만족하면 해당 클래스에서 아래 작업을 처리.
+            if (request.Amount < 3000)
+            {
+                Debug.Log(string.Format("[승인 완료] {0}에게 대출 완료 - 담당자 {1}", request.Customer, this.Name));
+            }
+            else if (successor != null) //만족하지 못하면 다음 객체에 요청사항을 전달.
+            {
+                Debug.Log(string.Format("[승인 거부] 담당자 변경 - {1}", request.Customer, this.Name));
+
+                successor.HandlerRequest(request);
+            }
+        }
     }
 ```
 
-### [ComputerPartDisplayVisitor.cs]
+
+
+### [Manager.cs]
 
 ```c#
-    /// <summary>
-    /// Concrete Visitor 역할
-    /// Visitor 인터페이스를 구현
-    /// 
-    /// 각 객체들을 전달받아 클래스에서 세부 작업을 처리한다.
-    /// 컴퓨터 부품들의 상태를 확인하는 클래스.
-    /// </summary>
-    public class ComputerPartDisplayVisitor : IComputerPartVisitor
+    public class Manager : RequestHandler
     {
-        public void Visit(Monitor monitor)
+        public override void HandlerRequest(LoanRequest request)
         {
-            Debug.Log("모니터 상태를 보여준다.");
-        }
+            //조건에 만족하면 해당 클래스에서 아래 작업을 처리.
+            if (request.Amount < 10000)
+            {
+                Debug.Log(string.Format("[승인 완료] {0}에게 대출 완료 - 담당자 {1}", request.Customer, this.Name));
+            }
+            else if (successor != null) //만족하지 못하면 다음 객체에 요청사항을 전달.
+            {
+                Debug.Log(string.Format("[승인 거부] 담당자 변경 - {1}", request.Customer, this.Name));
 
-        public void Visit(Keyboard keyboard)
-        {
-            Debug.Log("키보드 상태를  보여준다.");
-        }
-
-        public void Visit(Mouse mouse)
-        {
-            Debug.Log("마우스 상태를 보여준다.");
-        }
-
-        public void Visit(Computer computer)
-        {
-            Debug.Log("컴퓨터 상태를 보여준다.");
+                successor.HandlerRequest(request);
+            }
         }
     }
 ```
 
-### [ComputerPartExecuteVisitor.cs]
-
-```c#
-    /// <summary>
-    /// Concrete Visitor 역할
-    /// Visitor 인터페이스를 구현
-    /// 
-    /// 각 객체들을 전달받아 클래스에서 세부 작업을 처리한다.
-    /// 컴퓨터 부품들을 실행시키는 클래스.
-    /// </summary>
-    public class ComputerPartExecuteVisitor : IComputerPartVisitor
-    {
-        public void Visit(Monitor monitor)
-        {
-            Debug.Log("모니터를 작동한다.");
-        }
-
-        public void Visit(Keyboard keyboard)
-        {
-            Debug.Log("키보드를 작동한다.");
-        }
-
-        public void Visit(Mouse mouse)
-        {
-            Debug.Log("마우스를 작동한다.");
-        }
-
-        public void Visit(Computer computer)
-        {
-            Debug.Log("컴퓨터를 작동한다");
-        }
-    }
-```
-
-
+### 
 
 ### [MainProgram.cs]
 
@@ -245,29 +184,51 @@
     {
         void Start()
         {
-            //복잡한 구조체를 정의해놓고,
-            IComputerPart computer = new Computer();
+            //요청 사항을 생성.
+            List<LoanRequest> requestList = new List<LoanRequest>();
+            requestList.Add(new LoanRequest() { Amount = 800, Customer = "지니" });
+            requestList.Add(new LoanRequest() { Amount = 2500, Customer = "헤르미온느" });
+            requestList.Add(new LoanRequest() { Amount = 9600, Customer = "말포이" });
+            requestList.Add(new LoanRequest() { Amount = 200000, Customer = "해리포터" });
 
-            //Visitor를 전달하여 세부 기능을 실행.
-            // Visitor 전달 -> Computer -> Visitor에 전달.
-            computer.Accept(new ComputerPartDisplayVisitor());
+            //Chain 생성
+            //요청사항을 처리할 Handler 객체들을 생성한다. 
+            RequestHandler cashier = new Cashier() { Name = "김사원, Cachier"};
+            RequestHandler teamLeader = new TeamLeader() { Name = "박팀장, TeamLeader" };
+            RequestHandler manager = new Manager() { Name = "하점장, Manager" };
 
-            computer.Accept(new ComputerPartExecuteVisitor());
+            //Handler 객체들의 고리 순서 설정(연쇄)한다.
+            //클라이언트 입장에서 Chain는 자유자재로 변경이 가능.
+            cashier.SetSuccessor(teamLeader);
+            teamLeader.SetSuccessor(manager);
+
+            for(int i=0; i<requestList.Count; i++) {
+                cashier.HandlerRequest(requestList[i]);
+            }
         }
     }
 ~~~~
 
+
+
 ---
+
 
 
 ### [실행 결과]
 
-	모니터 상태를 보여준다.
-	키보드 상태를  보여준다.
-	마우스 상태를 보여준다.
-	컴퓨터 상태를 보여준다.
+	[대출 요청] 고객 이름:지니, 금액:$800
+	[승인 완료] 지니에게 대출 완료 - 담당자 김사원, Cachier
 	
-	모니터를 작동한다.
-	키보드를 작동한다.
-	마우스를 작동한다.
-	컴퓨터를 작동한다.
+	[대출 요청] 고객 이름:헤르미온느, 금액:$2500
+	[승인 거부] 담당자 변경 - 김사원, Cachier
+	[승인 완료] 헤르미온느에게 대출 완료 - 담당자 박팀장, TeamLeader
+	
+	[대출 요청] 고객 이름:말포이, 금액:$9600
+	[승인 거부] 담당자 변경 - 김사원, Cachier
+	[승인 거부] 담당자 변경 - 박팀장, TeamLeader
+	[승인 완료] 말포이에게 대출 완료 - 담당자 하점장, Manager
+	
+	[대출 요청] 고객 이름:해리포터, 금액:$200000
+	[승인 거부] 담당자 변경 - 김사원, Cachier
+	[승인 거부] 담당자 변경 - 박팀장, TeamLeader
