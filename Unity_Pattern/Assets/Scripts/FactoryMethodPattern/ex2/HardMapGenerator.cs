@@ -1,5 +1,5 @@
 ﻿
-namespace FactoryMethodPattern
+namespace FactoryMethodPattern.ex2
 {
     public class HardMapGenerator : EnemyGenerator
     {

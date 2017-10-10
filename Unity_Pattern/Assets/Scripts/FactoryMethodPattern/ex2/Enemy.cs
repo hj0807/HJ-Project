@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace FactoryMethodPattern
+namespace FactoryMethodPattern.ex2
 {
     public enum EnemyType
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace FactoryMethodPattern
+namespace FactoryMethodPattern.ex2
 {
     public class Slime : Enemy
     {
