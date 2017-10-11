@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SingletonPattern
+namespace SingletonPattern.ex1
 {
     /// <summary>
     /// 연산자 Manager 클래스.
@@ -21,6 +21,8 @@ namespace SingletonPattern
         public void Print()
         {
             Debug.Log("Result : " + resultVal);
+
+            Debug.Log(Instance);
         }
     }
 }

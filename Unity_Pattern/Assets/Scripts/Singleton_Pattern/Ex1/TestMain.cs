@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SingletonPattern
+namespace SingletonPattern.ex1
 {
     public class TestMain : MonoBehaviour
     {
@@ -12,6 +12,9 @@ namespace SingletonPattern
             OperatorMgr.Instance.AddValue(50);
 
             OperatorMgr.Instance.Print();
+
+            testMgr.Instance.Print();
+
         }
     }
 }

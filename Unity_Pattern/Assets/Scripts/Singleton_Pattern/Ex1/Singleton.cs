@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SingletonPattern
+namespace SingletonPattern.ex1
 {
     public class Singleton<T> where T : class, new()
     {

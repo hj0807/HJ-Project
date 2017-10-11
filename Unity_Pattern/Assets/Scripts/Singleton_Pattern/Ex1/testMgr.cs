@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SingletonPattern
+namespace SingletonPattern.ex1
 {
     public class testMgr : Singleton<testMgr>
     {
