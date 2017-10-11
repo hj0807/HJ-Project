@@ -1,5 +1,5 @@
 ﻿
-namespace PrototypePattern
+namespace PrototypePattern.ex1
 {
     public abstract class Cloneable
     {

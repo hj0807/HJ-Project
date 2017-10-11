@@ -1,5 +1,5 @@
 ﻿
-namespace PrototypePattern
+namespace PrototypePattern.ex2
 {
     public class Designer : IEmployee
     {

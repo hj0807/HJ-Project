@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PrototypePattern
+namespace PrototypePattern.ex1
 {
     public class ConcreatePrototypeB : Cloneable
     {
