@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace FatoryMethodPattern
+namespace FatoryMethodPattern.ex1
 {
     public class BaseTest : MonoBehaviour
     {
