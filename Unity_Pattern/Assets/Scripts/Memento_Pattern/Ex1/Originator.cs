@@ -8,23 +8,20 @@ namespace MementoPattern.ex1
     {
         private string state;
 
-        public void SetState(string state)
-        {
+        //Originator 객체의 상태를 설정.
+        public void SetState(string state) {
             this.state = state;
         }
 
-        public string GetState()
-        {
+        public string GetState() {
             return state;
         }
 
-        public Memento SaveStateToMemento()
-        {
+        public Memento SaveStateToMemento() {
             return new Memento(state);
         }
 
-        public void GetStateFromMemento(Memento memento)
-        {
+        public void GetStateFromMemento(Memento memento) {
             state = memento.GetState();
         }
     }
