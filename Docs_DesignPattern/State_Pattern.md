@@ -14,9 +14,15 @@
 ## 2. UML Diagram
 ![uml](http://www.dofactory.com/images/diagrams/net/state.gif)
 
+
+
 - Context : 객체의 내부 상태를 정의하는 Concrete State를 관리한다.
+
 - State : 객체의 특정 상태와 관련된 행동을 캡슐화하기 위한 인터페이스를 정의.
+
 - Concrete State : State에 따른 동작을 구현하는 서브 클래스.
+
+  ​
 
 
 
