@@ -6,7 +6,7 @@ namespace FlyweightPattern.ex2
 {
     /// <summary>
     /// Flyweight Factory 객체.
-    /// Flyweight 객체를 생성하고, 관리한다.
+    /// Flyweight 객체를 생성하고, 관리한다 (Pooling)
     /// </summary>
     public class CoffeeFlavorFactory
     {
