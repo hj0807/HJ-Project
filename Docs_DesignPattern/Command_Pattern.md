@@ -3,6 +3,11 @@
 
 
 ## 1. Command Pattern 
+- ​
+- 요구 사항을 객체로 캡술화할 수 있다.
+- 매개변수를 써서 여러 가지 다른 요구사항을 집어넣을 수 있다.
+- 요청 내역을 큐에 저장하거나 로그로 기록할 수 있고, 작업 취소 기능도 지원 가능함.
+- ​
 - [행위패턴]
 - 관련된 **객체들간의 참조를 피하기 위해** 사용하는 패턴.
 - 다수의 객체를 다룰 때 사용한다 (객체들간의 관계가 복잡할 때)
@@ -18,7 +23,21 @@
 
 
 ## 2. UML Diagram
-![uml](https://i.stack.imgur.com/DcUaU.jpg)
+![uml](http://blog.lukaszewski.it/wp-content/uploads/2013/07/command_diagram.png)
+
+- Client 
+  -  Concrete Command를 생성하고, Receiver를 설정
+- Invoker 
+  - 명령이 들어 있다.
+  - execute()를 호출함으로써 Command 객체에게 특정 작업을 수행하라고 요구를 함.
+- Command 
+  - 모든 Command 객체에서 구현해야 하는 인터페이스
+  - 모든 명령은 execute() 메소드 호출로 실행
+  - execute() 메소드에서는 리시버에 특정 작업을 처리하라는 지시를 전달
+- Concrete Command 
+  - 특정 행동과 리시버 사이를 연결해줌.
+- Receiver 
+  - 요구사항을 수행하기 위해 어떤 일을 처리해야하는지 알고 있는 객체
 
 
 
