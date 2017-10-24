@@ -15,9 +15,8 @@ namespace CommandPattern.ex1
             Receiver receiver = new Receiver();
             Command command = new ConcreteCommand(receiver);
 
-            Invoker invoker = new Invoker();
+            Invoker invoker = new Invoker(command);
 
-            invoker.SetCommand(command);
             invoker.ExecuteCommand();
         }
     }

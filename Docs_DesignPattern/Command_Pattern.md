@@ -1,43 +1,65 @@
-# Command Pattern  
+# Command Pattern (명령 패턴)  
 
 
 
 ## 1. Command Pattern 
-- ​
-- 요구 사항을 객체로 캡술화할 수 있다.
+- [행동 패턴]
+- **요구 사항**을 객체로 **캡슐화**할 수 있다.
 - 매개변수를 써서 여러 가지 다른 요구사항을 집어넣을 수 있다.
-- 요청 내역을 큐에 저장하거나 로그로 기록할 수 있고, 작업 취소 기능도 지원 가능함.
-- ​
-- [행위패턴]
-- 관련된 **객체들간의 참조를 피하기 위해** 사용하는 패턴.
-- 다수의 객체를 다룰 때 사용한다 (객체들간의 관계가 복잡할 때)
-- 객체들이 서로 복잡한 연관 관계를 맺고 있을 때, 클래스끼리 서로 호출하는 방법을 피하고 이러한 상호 작용에 관한 행동을 **중재자 클래스** 에서 정의하여 중재.
-
-[참고]
-
-![uml](http://cfile3.uf.tistory.com/image/2630184A53F35F8209BC5D)
-
-- A객체가 B, C 객체를 직접적으로 호출하지 않고, Mediator 객체를 거쳐서 통신을 하고 있다.
-
+- 요청 내역을 큐에 저장하거나 로그로 기록할 수 있고, 작업 취소 기능도 지원 가능하다.
+- `요청을 하는 객체와 그 요청을 수행하는 객체를 분리`하고 싶을 때 사용!
 
 
 
 ## 2. UML Diagram
 ![uml](http://blog.lukaszewski.it/wp-content/uploads/2013/07/command_diagram.png)
 
-- Client 
-  -  Concrete Command를 생성하고, Receiver를 설정
-- Invoker 
-  - 명령이 들어 있다.
+- **Client** 
+  -  Concrete Command(커맨드 객체)를 생성하고, Receiver를 설정
+
+  ​
+
+- **Invoker**
+  - 클라이언트의 Command 객체를 리시버에 전달한다.
+
   - execute()를 호출함으로써 Command 객체에게 특정 작업을 수행하라고 요구를 함.
-- Command 
+
+    ​
+- **Command**
   - 모든 Command 객체에서 구현해야 하는 인터페이스
+
   - 모든 명령은 execute() 메소드 호출로 실행
+
   - execute() 메소드에서는 리시버에 특정 작업을 처리하라는 지시를 전달
-- Concrete Command 
+
+    ​
+- **Concrete Command** 
   - 특정 행동과 리시버 사이를 연결해줌.
-- Receiver 
+
+    ​
+- **Receiver** 
   - 요구사항을 수행하기 위해 어떤 일을 처리해야하는지 알고 있는 객체
+  - 요청을 수행한다.
+
+
+
+
+##### [참고 예 - 식당]
+
+1. 손님이 웨이터한테 주문을 한다.
+2. 웨이터가 손님의 주문을 주문서에 적는다.
+3. 웨이터는 주문서를 주방에 전달하여 주문을 요청한다.
+4. 요리사는 주문서에 적힌 주문대로 음식을 만든다.
+
+```
+Client == 손님
+Invoker == 웨이터
+Command == 주문서
+Receiver == 요리사
+SetCommand() == 주문을 하다.
+Execute() == 주문을 요청한다.
+```
+
 
 
 
@@ -46,174 +68,203 @@
 ### [장점]
 
 
-- 객체간의 통신을 위해서는 Mediator 객체만 참조하면 된다. (다른 객체를 참조할 필요가 없음)
-- 객체간의 결합도가 낮아진다.
-- 제어 로직을 한 군데 모아놨기 때문에 관리하기가 수월하다.
+- 작업을 요청하는 객체와 수행하는 객체를 분리시키기때문에 `시스템의 결합도를 낮출 수 있다`
+-  작업을 요청하는 객체와 수행하는 객체를 **독립적으로 변경**할 수 있다.
+- Command 객체는 확장이 가능하며, 클라이언트는 코드 수정이 크게 필요하지 않다.
 
 
 
 
 ### [단점]
 
-- Mediator 클래스가 다른 객체들보다 복잡해진다.
-  - 객체들간 상호작용을 Mediator 클래스에 전부 정의해주기 때문에.
-- Mediator 클래스에 집중화가 이루어져 유지보수가 어려워질 수도 있다.
+- 작업 요청 객체가 적을 경우에 사용하면 프로그램이 오히려 복잡해진다.
 
 ​
 
 ## 4. 코드 설명
 
-- 채팅 중재자 클래스(ChatRoom)를 만들고, 유저 클래스들을(UserBase)를 Dictionary 형태로 관리.
-- A 유저가 B 유저에게 `중재자 클래스를 통해서` 메시지를 전송하게 되면 해당 유저에게 메시지를 전송.
+- x, y 좌표를 가진 원과 네모를 그리거나 지우는 작업을 가정하고 샘플 코드를 구현해본다.
+- 작업 내역을 Stack에 보관하고, 원한다면 **작업 취소도 가능**하다.
+- Command 객체는 총 4개이다. 
+  - DrawCircleCommand, EraseCircleCommand, DrawRectCommand, EraseRectCommand
 
 
 
 
 
-### [IChatRoom.cs]
+### [ICommand.cs]
 
 ~~~~c#
     /// <summary>
-    /// Mediator(중재자) 인터페이스.
-    /// Colleague 객체들과 의사소통을 하기위한 인터페이스를 정의.
+    /// Command 인터페이스.
+    /// Command 객체들이 해당 인터페이스를 상속받아 구현한다.
     /// </summary>
-    public interface IChatRoom
+    public interface ICommand 
     {
-        //채팅방에 참가하는 유저를 등록하는 메서드.
-        ChatRoom AddUser(UserBase user);
-        void SendMessage(string from, string to, string message);
+        //Command 객체들이 구현할 공통 메소드.
+        void Execute();
+
+        //되돌리는 메소드.
+        void Undo();
     }
 ~~~~
 
 
 
-### [ChatRoom.cs]
+### [DrawCircleCommand.cs]
 
 ~~~~c#
     /// <summary>
-    /// Concrete Mediator
-    /// 
-    /// Mediator 인터페이스를 구현.
-    /// Colleague 객체들간의 의사소통을 위한 클래스!!!
-    public class ChatRoom : IChatRoom
-    {
-        //Colleague 객체들을 관리하는 Dictionay.
-        private Dictionary<string, UserBase> userDic = new Dictionary<string, UserBase>();
-
-        /// <summary>
-        /// @ override 
-        /// 
-        /// 채팅방에 참여하는 유저를 등록하는 메소드.
-        /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        public ChatRoom AddUser(UserBase user)
-        {
-            if (!userDic.ContainsValue(user))
-            {
-                userDic.Add(user.Name, user);
-            }
-            user.ChatRoom = this;
-
-            return this;
-        }
-
-        /// <summary>
-        /// @ override
-        /// 
-        /// 메세지를 from 유저로 부터 to 유저에게 보내는 메소드.
-        /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        /// <param name="message"></param>
-        public void SendMessage(string from, string to, string message)
-        {
-            UserBase receiverUser = userDic[to];
-
-            if (receiverUser != null)
-            {
-                receiverUser.ReceiveMessage(from, message);
-            }
-        }
-    }
-~~~~
-
-
-
-### [UserBase.cs]
-
-~~~~c#
-    /// <summary>
-    /// Colleague(객체) 인터페이스.
+    /// Command 객체.
+    /// 원을 그리는 명령 객체.
     /// </summary>
-    public abstract class UserBase
+    public class DrawCircleCommand : ICommand
     {
-        //자신의 중재자가 누구인지 알아야 한다 (다른 객체와 통신이 필요할 때 중재자를 통해서 교류).
-        private IChatRoom chatroom;
-        private string name;
+        // 리시버를 참조한다.
+        // 명령 대상자가 누구인지 반드시 알아야한다.
+        private CircleReceiver receiver;
 
-        public IChatRoom ChatRoom { get { return chatroom; } set { chatroom = value; } }
-        public string Name { get { return name; } }
-
-        public UserBase(string name)
+        // 생성자를 통해 리시버를 전달. 
+        // (리시버에게 특정 작업을 처리하라는 명령을 전달하기 위해 참조)
+        public DrawCircleCommand(CircleReceiver receiver)
         {
-            this.name = name;
+            this.receiver = receiver;
         }
 
         /// <summary>
-        /// 중재자(chatroom)를 통해서 다른 유저(to)에게 message를 보내는 메소드.
+        /// 모든 명령(Command)는 Execute()메소드 호출로 실행한다.
         /// </summary>
-        /// <param name="to"></param>
-        /// <param name="message"></param>
-        public void SendMessage(string to, string message)
+        public void Execute()
         {
-            chatroom.SendMessage(name, to, message);
+            receiver.Draw();
         }
 
-        public abstract void ReceiveMessage(string from, string message);
+        public void Undo()
+        {
+            receiver.Erase();
+        }
     }
 ~~~~
 
 
 
-### [BasicUser.cs]
+### [EraseCircleCommand.cs]
+
+~~~~c#
+    /// <summary>
+    /// Command 객체.
+    /// 원을 지우는 명령 객체.
+    /// </summary>
+    public class EraseCircleCommand : ICommand
+    {
+        private CircleReceiver receiver;
+
+        public EraseCircleCommand(CircleReceiver receiver)
+        {
+            this.receiver = receiver;
+        }
+
+        public void Execute()
+        {
+            receiver.Erase();
+        }
+
+        public void Undo()
+        {
+            receiver.Draw();
+        }
+    }
+~~~~
+
+
+
+### [DrawRectCommand.cs]
 
 ```c#
     /// <summary>
-    /// Concrete Colleague
-    /// 실제 객체를 구현하는 클래스.
+    /// Command 객체.
+    /// 네모를 그리는 명령 객체.
     /// </summary>
-    public class BasicUser : UserBase
+    public class DrawRectCommand : ICommand
     {
-        public BasicUser(string name) : base(name)
+        private RectReceiver receiver;
+
+        public DrawRectCommand(RectReceiver receiver)
         {
+            this.receiver = receiver;
         }
 
-        public override void ReceiveMessage(string from, string message)
+        public void Execute()
         {
-            Debug.Log(string.Format("[일반 유저] {0} -> {1} : {2}", from, this.Name, message));
+            receiver.Draw();
+        }
+
+        public void Undo()
+        {
+            receiver.Erase();
         }
     }
 ```
 
 
 
-### [RankerUser.cs]
+### [EraseRectCommand.cs]
 
 ```c#
     /// <summary>
-    /// Concrete Colleague
-    /// 실제 객체를 구현하는 클래스.
+    /// Command 객체.
+    /// 네모를 지우는 명령 객체.
     /// </summary>
-    public class RankerUser : UserBase
+    public class EraseRectCommand : ICommand
     {
-        public RankerUser(string name) : base(name)
+        private RectReceiver receiver;
+
+        public EraseRectCommand(RectReceiver receiver)
         {
+            this.receiver = receiver;
         }
 
-        public override void ReceiveMessage(string from, string message)
+        public void Execute()
         {
-            Debug.Log(string.Format("[랭커 유저] {0} -> {1} : {2}", from, this.Name, message));
+            receiver.Erase();
+        }
+
+        public void Undo()
+        {
+            receiver.Draw();
+        }
+    }
+```
+
+
+
+### [DrawingInvoker.cs]
+
+```c#
+    /// <summary>
+    /// Invoker.
+    /// Command 객체에게 작업을 요청한다.
+    /// </summary>
+    public class DrawingInvoker 
+    {
+        //Command 객체를 관리한다.
+        private Stack<ICommand> commandStack;
+
+        public DrawingInvoker()
+        {
+            commandStack = new Stack<ICommand>();
+        }
+
+        //Execute를 호출하면 해당 Command를 Stack에 쌓고, Execute를 실행한다.
+        public void Execute(ICommand command)
+        {
+            commandStack.Push(command);
+            command.Execute();
+        }
+
+        public void Undo()
+        {
+            commandStack.Pop().Undo();
         }
     }
 ```
@@ -223,28 +274,40 @@
 ### [MainProgram.cs]
 
 ```c#
-   
+    /// <summary>
+    /// 클라이언트 객체.
+    /// </summary>
     public class MainProgram : MonoBehaviour
     {
         void Main()
         {
-            ChatRoom chatRoom = new ChatRoom();
+            //작업을 요청하기 위해 Invoker 생성.
+            DrawingInvoker drawing = new DrawingInvoker();
 
-            // 유저를 생성하고,
-            UserBase kim = new BasicUser("김씨");
-            UserBase lee = new BasicUser("이씨");
-            UserBase park = new BasicUser("박씨");
-            UserBase choi = new BasicUser("최씨");
-            UserBase yang = new RankerUser("양씨");
+            //원을 그린다. (3,5)
+            CircleReceiver circleReceiver = new CircleReceiver(3, 5);
+            drawing.Execute(new DrawCircleCommand(circleReceiver));
 
-            // 채팅방에 생성한 유저를 추가한다.
-            chatRoom.AddUser(kim).AddUser(lee).AddUser(park).AddUser(choi).AddUser(yang);
+            //네모를 그린다. (123)
+            RectReceiver rectReceiver = new RectReceiver(12, 3);
+            drawing.Execute(new DrawRectCommand(rectReceiver));
 
-            yang.SendMessage(choi.Name, "최씨를 만나서 반가워");
-            lee.SendMessage(park.Name, "치킨먹자");
-            park.SendMessage(kim.Name, "오늘 2시 어때?");
-            lee.SendMessage(choi.Name, "놀러와");
-            choi.SendMessage(yang.Name, "전화가능?");
+            //네모를 지운다. (12,3)
+            drawing.Execute(new EraseRectCommand(rectReceiver));
+
+            //네모를 그린다. (12,3)
+            drawing.Execute(new DrawRectCommand(rectReceiver));
+
+            //원을 그린다. (1,1)
+            drawing.Execute(new DrawCircleCommand(new CircleReceiver(1, 1)));
+
+            Debug.Log("==========================");
+
+            drawing.Undo(); //원을 지우고 (1,1)
+            drawing.Undo(); //네모를 지우고(12,3)
+            drawing.Undo(); //네모를 그리고(12,3)
+
+            drawing.Execute(new DrawRectCommand(rectReceiver));
         }
     }
 ```
@@ -256,58 +319,24 @@
 
 ### [실행 결과]
 
-	[일반 유저] 양씨 -> 최씨 : 최씨를 만나서 반가워
-	[일반 유저] 이씨 -> 박씨 : 치킨먹자
-	[일반 유저] 박씨 -> 김씨 : 오늘 2시 어때?
-	[일반 유저] 이씨 -> 최씨 : 놀러와
-	[랭커 유저] 최씨 -> 양씨 : 전화가능?
+	원을 그립니다. (3, 5)
+	네모를 그립니다. (12, 3)
+	네모를 지웁니다. (12, 3)
+	네모를 그립니다. (12, 3)
+	원을 그립니다. (1, 1)
+	==========================
+	원을 지웁니다. (1, 1)
+	네모를 지웁니다. (12, 3)
+	네모를 그립니다. (12, 3)
 
 
 
-## 5. 구현시 고려해야할 이슈
+## 5. 참고 사이트
 
-1. Mediator의 추상화 객체 생략
-
-   - 관련 객체들이 하나의 Mediator 클래스와 동작한다면 Mediator를 추상화 할 필요가 없다.
-   - 다른 상호작용을 정의할 새로운 Mediator 서브 클래스가 필요할 때 필요.
-
-   ​
-
-2. 상호 관련된 객체들은 Observer 패턴을 이용해서 Mediator 객체들과 교류
-
-   - 이벤트가 발생하면 Colleague 객체는 Mediator 클래스와 통신을 주고 받음.
-   - 중재자 클래스의 구현방법 중 하나는 Observer를 사용하는 방법이다.
-   - Colleague 객체의 상태변화가 일어날때마다 중재자 클래스에 통보하면, 중재자는 다른 객체들에게 변경을 통보하여 처리하는 방법 (Observer)
-
-   ​
-
-   [참고]
-
-   http://outshine90.tistory.com/entry/%EC%A4%91%EC%9E%AC%EC%9E%90-%ED%8C%A8%ED%84%B4
+- http://haloper.tistory.com/15
 
 
 
-## 6. Mediator와 Facade 패턴의 차이
+[잘 정리된 문서 URL]
 
-- 복잡한 관계를 인터페이스화하여 이용한다는 부분이 두 패턴의 유사점!
-
-  ​
-
-1. Mediator 패턴
-
-   - 양방향성을 띄는 부분 (객체와 중재자 클래스 사이의 상호작용)
-
-   - 아래에서부터 정책을 적용.
-
-     ​
-
-2. Facade 패턴
-
-   - 단방향성을 띄는 부분 (퍼사드 클래스에서만 객체를 호출 가능)
-   - 위에서부터 정책을 적용.
-
-
-
-## 7.참고사이트
-
-- http://www.dofactory.com/net/mediator-design-pattern
+- https://github.com/KWSStudy/DesignPartterns/wiki/%EC%BB%A4%EB%A7%A8%EB%93%9C-%ED%8C%A8%ED%84%B4

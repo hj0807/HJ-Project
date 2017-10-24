@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-//http://alleysark.tistory.com/175
 
 namespace CommandPatter.ex2
 {
@@ -10,7 +9,14 @@ namespace CommandPatter.ex2
     {
         void Main()
         {
-            Player
+            Player player = new Player();
+
+            MacroPattern pattern = new MacroPattern();
+
+            pattern.Add(new Movement(player));
+            pattern.Add(new Attack(player));
+
+            pattern.Run();
         }
     }
 }
