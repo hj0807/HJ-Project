@@ -4,11 +4,12 @@
 
 ## 1. Interpreter Pattern 
 - [행위패턴]
-- 문법 규칙을 클래스화 한 구조.
+- **문법 규칙을 클래스**로 표현한 구조.
 - 일련의 규칙으로 정의된 언어를 해석하는 패턴.
-- 언어에서 문장을 해석할 때 주로 사용된다.
+- 언어에서 문장을 **해석할 때 주로 사용**하는 패턴.
 - (SQL 같은 DB쿼리 언어에서 상용 통신 프로토콜을 설명하는데 자주 사용됨)
-- ​
+
+  ​
 
 
 
@@ -18,25 +19,14 @@
 
 
 - Abstract Expression
-  - ​
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  - 노드에 해당하는 모든 클래스들이 공통적으로 가져야할 Interpret() 메소드를 정의.
+- TerminalExpression
+  - 문법에 정의한 기호와 관련된 해석 방법을 구현.
+  - 문장을 구성하는 모든 기호에 대해서 해당 클래스를 만들어야함.
+- NonterminalExpression
+  - 터미널 기호가 아닌 모든 기호에 대해서 Interpret 연산을 수행.
+- Context
+  - 인터프리터가 구문해석을 수행하도록 정보를 제공.
 
 
 
@@ -47,174 +37,188 @@
 ### [장점]
 
 
-- 객체간의 통신을 위해서는 Mediator 객체만 참조하면 된다. (다른 객체를 참조할 필요가 없음)
-- 객체간의 결합도가 낮아진다.
-- 제어 로직을 한 군데 모아놨기 때문에 관리하기가 수월하다.
+- 문법이 클래스에 의해 표현되기 때문에 언어를 쉽게 변경하거나 확장할 수 있다.
+
+  - IExpression을 상속받아 새로운 문법을 얼마든지 추가할 수 있다.
+- 클래스 구조에 메소드만 추가하면 프로그램을 해석하는 기본 기능 외에 예쁘게 출력하는 기능이라던지, 더 나은 프로그램 확인 기능 등 새로운 기능을 추가할 수 있다.
 
 
 
 
 ### [단점]
 
-- Mediator 클래스가 다른 객체들보다 복잡해진다.
-  - 객체들간 상호작용을 Mediator 클래스에 전부 정의해주기 때문에.
-- Mediator 클래스에 집중화가 이루어져 유지보수가 어려워질 수도 있다.
+- 문법 규칙의 개수가 많아지면 아주 복잡해진다.
+  - 이런 경우에는 파서/컴파일러 생성기를 쓰는 것이 낫다.
 
 ​
 
 ## 4. 코드 설명
 
-- 채팅 중재자 클래스(ChatRoom)를 만들고, 유저 클래스들을(UserBase)를 Dictionary 형태로 관리.
-- A 유저가 B 유저에게 `중재자 클래스를 통해서` 메시지를 전송하게 되면 해당 유저에게 메시지를 전송.
+- 역 폴란드어 표기법(Reverse Polish Notation)으로 표현된 문자열이 입력되면, 해당 입력을 해석하고 정답을 알려준다.
+- 숫자는 NumberExpression에서, 부호는 AddExpression, SubstractExpression에서 해석한다.
 
 
 
 
-
-### [IChatRoom.cs]
+### [IExpression.cs]
 
 ~~~~c#
     /// <summary>
-    /// Mediator(중재자) 인터페이스.
-    /// Colleague 객체들과 의사소통을 하기위한 인터페이스를 정의.
+    /// Expression interface.
+    /// 구문 트리 노드의 공통의 인터페이스를 정하는 역할.
     /// </summary>
-    public interface IChatRoom
+    public interface IExpression
     {
-        //채팅방에 참가하는 유저를 등록하는 메서드.
-        ChatRoom AddUser(UserBase user);
-        void SendMessage(string from, string to, string message);
+        int Interpret();
     }
 ~~~~
 
 
 
-### [ChatRoom.cs]
+### [NumberExpression.cs]
 
 ~~~~c#
     /// <summary>
-    /// Concrete Mediator
-    /// 
-    /// Mediator 인터페이스를 구현.
-    /// Colleague 객체들간의 의사소통을 위한 클래스!!!
-    public class ChatRoom : IChatRoom
-    {
-        //Colleague 객체들을 관리하는 Dictionay.
-        private Dictionary<string, UserBase> userDic = new Dictionary<string, UserBase>();
-
-        /// <summary>
-        /// @ override 
-        /// 
-        /// 채팅방에 참여하는 유저를 등록하는 메소드.
-        /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        public ChatRoom AddUser(UserBase user)
-        {
-            if (!userDic.ContainsValue(user))
-            {
-                userDic.Add(user.Name, user);
-            }
-            user.ChatRoom = this;
-
-            return this;
-        }
-
-        /// <summary>
-        /// @ override
-        /// 
-        /// 메세지를 from 유저로 부터 to 유저에게 보내는 메소드.
-        /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        /// <param name="message"></param>
-        public void SendMessage(string from, string to, string message)
-        {
-            UserBase receiverUser = userDic[to];
-
-            if (receiverUser != null)
-            {
-                receiverUser.ReceiveMessage(from, message);
-            }
-        }
-    }
-~~~~
-
-
-
-### [UserBase.cs]
-
-~~~~c#
-    /// <summary>
-    /// Colleague(객체) 인터페이스.
+    /// Terminal Expression 객체.
+    /// 문법에 정의한 기호와 관련된 해석 방법을 구현.
     /// </summary>
-    public abstract class UserBase
+    public class NumberExpression : IExpression
     {
-        //자신의 중재자가 누구인지 알아야 한다 (다른 객체와 통신이 필요할 때 중재자를 통해서 교류).
-        private IChatRoom chatroom;
-        private string name;
+        private int number;
 
-        public IChatRoom ChatRoom { get { return chatroom; } set { chatroom = value; } }
-        public string Name { get { return name; } }
-
-        public UserBase(string name)
+        public NumberExpression(int number)
         {
-            this.name = name;
+            this.number = number;
         }
 
-        /// <summary>
-        /// 중재자(chatroom)를 통해서 다른 유저(to)에게 message를 보내는 메소드.
-        /// </summary>
-        /// <param name="to"></param>
-        /// <param name="message"></param>
-        public void SendMessage(string to, string message)
+        //override.
+        public int Interpret()
         {
-            chatroom.SendMessage(name, to, message);
+            return number;
         }
-
-        public abstract void ReceiveMessage(string from, string message);
     }
 ~~~~
 
 
 
-### [BasicUser.cs]
+### [AddExpression.cs]
+
+~~~~c#
+    /// <summary>
+    /// NonTerminal Expreesion 객체.
+    /// 터미널 기호가 아닌 모든 기호에 대해서 Interpret 연산을 수행.
+    /// </summary>
+    public class AddExpression : IExpression
+    {
+        //left Expression과 right Expression을 참조.
+        private IExpression leftExpression;
+        private IExpression rightExpression;
+
+        public AddExpression(IExpression left, IExpression right)
+        {
+            leftExpression = left;
+            rightExpression = right;
+        }
+
+        /// <summary>
+        /// AddExpression에서는 해석시 left + right의 결과값으로 해석하여 리턴해준다.
+        /// </summary>
+        /// <returns>결과값</returns>
+        public int Interpret()
+        {
+            int result = leftExpression.Interpret() + rightExpression.Interpret();
+            return result;
+        }
+    }
+~~~~
+
+
+
+### [SubstractExpression.cs]
 
 ```c#
     /// <summary>
-    /// Concrete Colleague
-    /// 실제 객체를 구현하는 클래스.
+    /// NonTerminal Expreesion 객체.
+    /// 터미널 기호가 아닌 모든 기호에 대해서 Interpret 연산을 수행.
     /// </summary>
-    public class BasicUser : UserBase
+    public class SubstractExpression : IExpression
     {
-        public BasicUser(string name) : base(name)
+        //left Expression과 right Expression을 참조.
+        private IExpression leftExpression;
+        private IExpression rightExpression;
+
+        public SubstractExpression(IExpression left, IExpression right)
         {
+            leftExpression = left;
+            rightExpression = right;
         }
 
-        public override void ReceiveMessage(string from, string message)
+        /// <summary>
+        /// SubstractExpression 해석시 left - right의 결과값으로 해석하여 리턴해준다.
+        /// </summary>
+        /// <returns>결과값</returns>
+        public int Interpret()
         {
-            Debug.Log(string.Format("[일반 유저] {0} -> {1} : {2}", from, this.Name, message));
+            int result = leftExpression.Interpret() - rightExpression.Interpret();
+            return result;
         }
     }
 ```
 
 
 
-### [RankerUser.cs]
+### [TokenReader.cs]
 
 ```c#
     /// <summary>
-    /// Concrete Colleague
-    /// 실제 객체를 구현하는 클래스.
+    /// 문법 규칙을 해석해주는 클래스.
     /// </summary>
-    public class RankerUser : UserBase
+    public class TokenReader 
     {
-        public RankerUser(string name) : base(name)
+        public IExpression ReadToken(List<string> tokenList)
         {
+            return ReadNextToken(tokenList);
         }
 
-        public override void ReceiveMessage(string from, string message)
+        private IExpression ReadNextToken(List<string> tokenList)
         {
-            Debug.Log(string.Format("[랭커 유저] {0} -> {1} : {2}", from, this.Name, message));
+            int num = 0;
+
+            //해당 문자열의 첫문자가 숫자인지, 기호인지 판단하여 Expression을 리턴.
+            if (int.TryParse(tokenList.First(), out num))
+            {
+                tokenList.RemoveAt(0);
+                return new NumberExpression(num);
+            }
+            else
+            {
+                return ReadNonTerminal(tokenList);
+            }
+        }
+
+        /// <summary>
+        /// NonTermianl 객체를 읽어 반환하는 메소드.
+        /// </summary>
+        /// <param name="tokenList"></param>
+        /// <returns></returns>
+        private IExpression ReadNonTerminal(List<string> tokenList)
+        {
+            string token = tokenList.First();
+            tokenList.RemoveAt(0);
+
+            IExpression left = ReadNextToken(tokenList);
+            IExpression right = ReadNextToken(tokenList);
+
+            if(token.Equals("+"))
+            {
+                return new AddExpression(left, right);
+            }
+            else if(token.Equals("-"))
+            {
+                return new SubstractExpression(left, right);
+            }
+
+            return null;
         }
     }
 ```
@@ -224,28 +228,21 @@
 ### [MainProgram.cs]
 
 ```c#
-   
-    public class MainProgram : MonoBehaviour
-    {
+   public class MainProgram : MonoBehaviour {
+
         void Main()
         {
-            ChatRoom chatRoom = new ChatRoom();
+            string strToken = "+ - 10 2 3";
+            List<string> tokenList = new List<string>(strToken.Split(' '));
 
-            // 유저를 생성하고,
-            UserBase kim = new BasicUser("김씨");
-            UserBase lee = new BasicUser("이씨");
-            UserBase park = new BasicUser("박씨");
-            UserBase choi = new BasicUser("최씨");
-            UserBase yang = new RankerUser("양씨");
+            IExpression expression = new TokenReader().ReadToken(tokenList);
+            Debug.Log(expression.Interpret()); // (10-2) + 3 =11
 
-            // 채팅방에 생성한 유저를 추가한다.
-            chatRoom.AddUser(kim).AddUser(lee).AddUser(park).AddUser(choi).AddUser(yang);
+            strToken = "- + 10 5 - 8 2";
+            tokenList = new List<string>(strToken.Split(' '));
 
-            yang.SendMessage(choi.Name, "최씨를 만나서 반가워");
-            lee.SendMessage(park.Name, "치킨먹자");
-            park.SendMessage(kim.Name, "오늘 2시 어때?");
-            lee.SendMessage(choi.Name, "놀러와");
-            choi.SendMessage(yang.Name, "전화가능?");
+            expression = new TokenReader().ReadToken(tokenList);
+            Debug.Log(expression.Interpret()); // (10+5)-(8-2)= 9
         }
     }
 ```
@@ -257,58 +254,12 @@
 
 ### [실행 결과]
 
-	[일반 유저] 양씨 -> 최씨 : 최씨를 만나서 반가워
-	[일반 유저] 이씨 -> 박씨 : 치킨먹자
-	[일반 유저] 박씨 -> 김씨 : 오늘 2시 어때?
-	[일반 유저] 이씨 -> 최씨 : 놀러와
-	[랭커 유저] 최씨 -> 양씨 : 전화가능?
+	11
+	9
 
 
 
-## 5. 구현시 고려해야할 이슈
 
-1. Mediator의 추상화 객체 생략
+## 5. 참고사이트
 
-   - 관련 객체들이 하나의 Mediator 클래스와 동작한다면 Mediator를 추상화 할 필요가 없다.
-   - 다른 상호작용을 정의할 새로운 Mediator 서브 클래스가 필요할 때 필요.
-
-   ​
-
-2. 상호 관련된 객체들은 Observer 패턴을 이용해서 Mediator 객체들과 교류
-
-   - 이벤트가 발생하면 Colleague 객체는 Mediator 클래스와 통신을 주고 받음.
-   - 중재자 클래스의 구현방법 중 하나는 Observer를 사용하는 방법이다.
-   - Colleague 객체의 상태변화가 일어날때마다 중재자 클래스에 통보하면, 중재자는 다른 객체들에게 변경을 통보하여 처리하는 방법 (Observer)
-
-   ​
-
-   [참고]
-
-   http://outshine90.tistory.com/entry/%EC%A4%91%EC%9E%AC%EC%9E%90-%ED%8C%A8%ED%84%B4
-
-
-
-## 6. Mediator와 Facade 패턴의 차이
-
-- 복잡한 관계를 인터페이스화하여 이용한다는 부분이 두 패턴의 유사점!
-
-  ​
-
-1. Mediator 패턴
-
-   - 양방향성을 띄는 부분 (객체와 중재자 클래스 사이의 상호작용)
-
-   - 아래에서부터 정책을 적용.
-
-     ​
-
-2. Facade 패턴
-
-   - 단방향성을 띄는 부분 (퍼사드 클래스에서만 객체를 호출 가능)
-   - 위에서부터 정책을 적용.
-
-
-
-## 7.참고사이트
-
-- http://www.dofactory.com/net/mediator-design-pattern
+- https://www.codeproject.com/Articles/186183/Interpreter-Design-Pattern

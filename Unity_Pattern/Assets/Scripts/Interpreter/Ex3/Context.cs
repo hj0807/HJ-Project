@@ -18,6 +18,7 @@ namespace InterpreterPattern.ex3
             Input = input;
         }
 
+        //get, set method.
         public string Input
         {
             get

@@ -22,7 +22,9 @@ namespace InterpreterPattern.ex3
             tree.Add(new TenExpression());
             tree.Add(new OneExpression());
 
-            for(int i=0; i<tree.Count; i++)
+            //해석하는 부분.
+            //for(int i=0; i<tree.Count; i++)
+            for (int i = 0; i < 1; i++)
             {
                 tree[i].Interpret(context);
             }
